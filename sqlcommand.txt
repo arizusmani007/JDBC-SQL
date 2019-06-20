@@ -1,0 +1,126 @@
+select * from tab;
+------------gives list of tables
+desc employees
+------------gives table structure(columns present in table)
+create table account(aid number(8) primary key,mobileno number(10) unique not null,accountholder varchar2(30) not null,balance number(8,2) check(balance>=1000.00));
+------------creating a table
+insert into account values(100,9999999999,'King',24000.00);
+------------inserting a row 
+savepoint A;
+------------savepoint for rollback
+update account set balance=30000,accountholder='King Khan' where aid=100;
+------------updating a row
+delete from account;
+------------3 rows deleted(we can retrieve it with the help of savepoints)
+rollback to B;
+------------undo till savepoint B
+commit;
+------------saving the data
+------------create,alter,drop(ddl commands perform automatic commit)
+select last_name,salary,coommission_pct,hire_date,job_id,departmenyt_id from employees where department_id=50 or job_id like '%_MAN';
+------------like is used to select ending with MAN
+select last_name,salary,coommission_pct,hire_date,job_id,departmenyt_id from employees job_id in ('ST_MAN','SA_MAN','PU_MAN');
+------------to select rows which have job_id as MAN
+select last_name,salary,coommission_pct,hire_date,job_id,departmenyt_id from employees job_id NOT in ('ST_MAN','SA_MAN','PU_MAN');
+select last_name,salary,coommission_pct,hire_date,job_id,departmenyt_id from employees where salary between 10000 and 20000;
+------------gives employees who has salary between 10000 and 20000
+select last_name,salary,coommission_pct,hire_date,job_id,departmenyt_id from employees where salary between 10000 and 20000 order by job_id,salary;
+------------sorts according to job_id first and then same job_id are sorted according to salary
+select last_name,salary,coommission_pct,hire_date,job_id,departmenyt_id from employees where hire_date between '01-JAN-05' and '31-DEC-08';
+------------selects employees whose hire date between 2005 and 2008
+select last_name, upper(last_name), lower(last_name) from employees;
+select sum(salary) from employees;
+select sum(salary) TotalSalary, min(salary) "Min Salary", count(salary) "Total Count" from Employee;
+------------to calculate total,min,and count of salary
+select avg(nvl(commission_pct,0)) as average, count(nvl(commission_pct,0)) from employees;
+------------to include 0 or null values just for calculation nvl is used
+select sum(salary), count(salary) from employees group by department_id;
+------------groups the employees having same department_id and adds the salary within that group..does the same for all same cases(all other groups)
+select department_id,job_id,sum(salary), count(salary) from employees group by department_id,job_id;
+------------apply group by on multiple columns(major group,sub-group)
+select sum(salary), count(salary) from employees having sum(salary)>=50000 group by department_id,job_id order by department_id,job_id;
+------------having clause is used for group functions
+select count(distinct department_id) from employees;
+------------it ignores same department_id(ignores repeated values)
+select  employees.employee_id,
+        employees.last_name,
+	employees.department_id,
+	departments.department_id,
+	departments.department_name
+from employees,departments;
+------------join(cartesian product)(cross join)
+select  employees.employee_id,
+        employees.last_name,
+	employees.department_id,
+	departments.department_id,
+	departments.department_name
+from employees cross join departments;     //standard sql 1999
+------------join(cartesian product)(cross join)
+select  employees.employee_id,
+        employees.last_name,
+	employees.department_id,
+	departments.department_id,
+	departments.department_name
+from employees cross join departments where employees.department_id=departments.department_id;
+------------equi join
+select  employees.employee_id,
+        employees.last_name,
+	employees.department_id,
+	departments.department_id,
+	departments.department_name
+from employees join departments on employees.department_id=departments.department_id;
+------------standard...inner join...matched records
+select  e.employee_id,
+        e.last_name,
+	e.department_id,
+	d.department_id,
+	d.department_name
+from employees e join departments d on e.department_id=d.department_id;
+--------------aliasing
+equi-join---natural join
+.......performs join on common columns between tables
+.......common in ...same name, same datatype, same size
+select * from employees natural join departments;
+--------------perfect equi join(common columns displayed only once)
+select * from employees join departments using(department_id);
+--------------equi join by 'using' clause
+select  e.employee_id,
+        e.last_name,
+	e.department_id,
+	d.department_id,
+	d.department_name
+from employees e left outer join departments d on e.department_id=d.department_id;
+--------------left outer join
+select  e.employee_id,
+        e.last_name,
+	e.department_id,
+	d.department_id,
+	d.department_name
+from employees e right outer join departments d on e.department_id=d.department_id;		
+---------------right outer join
+select  e.employee_id,
+        e.last_name,
+	e.department_id,
+	d.department_id,
+	d.department_name
+from employees e full outer join departments d on e.department_id=d.department_id;
+--------------full outer join
+select w.employee_id,
+	w.last_name,
+	w.manager_id,
+	m.last_name,
+	m.employee_id
+	from employees w join employees m
+	on w.manager_id=m.employee_id order by m.employee_id;
+--------------self join
+select w.employee_id,
+	w.last_name,
+	w.manager_id,
+	w.hire_date,
+	m.last_name,
+	m.employee_id,
+	m.hire_date
+	from employees w join employees m
+	on w.manager_id=m.employee_id 
+	and w.hire_date<m.hire_date;
+-------------non equi join
